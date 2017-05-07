@@ -27,7 +27,7 @@ public class TireController : MonoBehaviour {
     public static double movedMeter;            // 移動距離メタ
 
     void Start () {
-        charged = true;
+        charged = false;
         movedText.text = "Moved   : 0 m";
         timeText.text = "Time      : 00:00";
         gameOvertime = 0f;
@@ -59,17 +59,55 @@ public class TireController : MonoBehaviour {
         }
 
         // クリックイベント
-        if (Input.GetMouseButton(0) && charged)
+        if ((Input.GetMouseButton(0) || Input.touchCount > 0) && charged)
         {
-            // クリックされた場所の座標を取得
-            Vector3 clickPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector3 clickPos;
+
+            // マウスクリック
+            if (Input.GetMouseButton(0)) {
+                // クリックされた場所の座標を取得
+                clickPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            }
+            else   // タップ
+            {
+                Touch touch = Input.GetTouch(0);
+                clickPos = Camera.main.ScreenToWorldPoint(touch.position);
+            }
             // タイヤとクリックされた場所の方向を計算する
             Vector3 dir = clickPos - transform.position;
+
+            // 加速度制限
+            if (dir.x > 6.0f) { dir.x = 6.0f; }
+            if (dir.y > 6.0f) { dir.y = 6.0f; }
+            if (dir.y < -6.0f) { dir.y = -6.0f; }
 
             //this.rigid2D.AddForce(new Vector2(1, 3) * 150);
             // 力を加える
             this.rigid2D.AddForce((dir) * 50.0f);
             charged = false;
+        }
+
+        // 最大速度制限
+        if (this.rigid2D.velocity.x > 10.0f || this.rigid2D.velocity.y > 12.0f || this.rigid2D.velocity.y < -12.0f)
+        {
+            Vector2 limitSpeed;
+            if (this.rigid2D.velocity.x > 10.0f)
+            {
+                limitSpeed = new Vector2(10.0f, this.rigid2D.velocity.y);
+            }
+            else if (this.rigid2D.velocity.y > 12.0f)
+            {
+                limitSpeed = new Vector2(this.rigid2D.velocity.x, 12.0f);
+            }
+            else if (this.rigid2D.velocity.y < -12.0f)
+            {
+                limitSpeed = new Vector2(this.rigid2D.velocity.x, -12.0f);
+            }
+            else
+            {
+                limitSpeed = new Vector2(this.rigid2D.velocity.x, this.rigid2D.velocity.y);
+            }
+            this.rigid2D.velocity = limitSpeed;
         }
 
         // 経過時間を計算
