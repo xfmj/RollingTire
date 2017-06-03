@@ -10,6 +10,7 @@ public class TireController : MonoBehaviour {
     Rigidbody2D rigid2D;
     private AudioSource hitSound1;              // 地面ヒット音
     private AudioSource hitSound2;              // 壁ヒット音
+    Slider charger;                                         // エネルギーバー
 
     bool charged;                                          // 連続クリック防止用フラグ
     public Text movedText;                            // 移動距離表示UI用
@@ -41,6 +42,7 @@ public class TireController : MonoBehaviour {
         AudioSource[] audioSources = GetComponents<AudioSource>();
         hitSound1 = audioSources[0];
         hitSound2 = audioSources[1];
+        charger = GameObject.Find("charger").GetComponent<Slider>();
 
         // 初期速度を与える
         this.rigid2D.AddForce(transform.right * pushForce);
@@ -129,6 +131,21 @@ public class TireController : MonoBehaviour {
         // 移動距離をUIに反映する
         movedMeter = Math.Round((transform.position.x + 10), 0);
         movedText.text = "Moved   : " + movedMeter.ToString() + " m";
+
+        // エネルギーバーコントローラ
+        if (charged == true)
+        {
+            if (charger.value < 1f) {
+                charger.value += 0.05f;
+            }
+        }
+        else
+        {
+            if (charger.value > 0f)
+            {
+                charger.value -= 0.05f;
+            }
+        }
     }
 
     void OnTriggerExit2D(Collider2D collision)
