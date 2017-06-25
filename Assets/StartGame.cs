@@ -5,15 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class StartGame : MonoBehaviour {
 
-	void Start () {
-		
-	}
-	
-	void Update () {
+    public void StartGameBtn () {
         // クリックでゲームスタート
-        if (Input.GetMouseButtonDown(0))
-        {
-            SceneManager.LoadScene("stage1");
-        }
+        SceneManager.LoadScene("stage1");
     }
 }
